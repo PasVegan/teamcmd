@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.2-SNAPSHOT'
+    id 'fabric-loom' version '1.5.1'
     id 'maven-publish'
 }
 
@@ -34,8 +34,6 @@ dependencies {
 
     // Fabric API
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    // Lazy DFU  in Dev
-    modRuntimeOnly "maven.modrinth:lazydfu:0.1.2"
     // Server Side Translations
     modImplementation include("xyz.nucleoid:server-translations-api:${project.translations_api_version}")
     implementation include("com.moandjiezana.toml:toml4j:${project.toml4j_version}")
