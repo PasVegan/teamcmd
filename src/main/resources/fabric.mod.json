@@ -6,11 +6,11 @@
   "name": "TeamCommand",
   "description": "A command for players to create and manage teams. Similar to factions but based on Vanilla scoreboard teams.",
   "authors": [
-    "beabfc"
+    "PasVegan"
   ],
   "contact": {
     "homepage": "",
-    "sources": "https://github.com/beabfc/teamcommand"
+    "sources": "https://github.com/PasVegan/teamcmd"
   },
 
   "license": "MIT",
@@ -19,7 +19,7 @@
   "environment": "server",
   "entrypoints": {
     "server": [
-      "io.github.beabfc.teamcmd.TeamCommand"
+      "io.github.PasVegan.teamcmd.TeamCommand"
     ]
   },
   "mixins": [

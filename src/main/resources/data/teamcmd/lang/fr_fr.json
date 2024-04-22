@@ -1,0 +1,19 @@
+{
+  "commands.teamcmd.fail.in_team": "Vous êtes déjà dans une équipe",
+  "commands.teamcmd.fail.no_team": "Vous n'êtes dans aucune équipe",
+  "commands.teamcmd.fail.already_teammate": "Ce joueur est déjà dans votre équipe",
+  "commands.teamcmd.fail.not_invited": "Vous n'êtes invité dans aucune équipe",
+  "commands.teamcmd.invite.success": "%s à été invité a rejoindre votre équipe",
+  "commands.teamcmd.invite": "%s vous à invité a rejoindre l'équipe %s",
+  "commands.teamcmd.teammates.invite": "%s à invité %s dans votre équipe",
+  "commands.teamcmd.joined": "Vous avez rejoint l'équipe %s",
+  "commands.teamcmd.teammates.joined": "%s à rejoint votre équipe",
+  "commands.teamcmd.left": "Vous avez quitté l'équipe %s",
+  "commands.teamcmd.teammates.left": "%s à quitté votre équipe",
+  "commands.teamcmd.invite_expired": "Votre invitation pour rejoindre l'équipe %s à expiré",
+  "commands.teamcmd.fail.duplicate_color": "Une équipe avec cette couleur existe déjà",
+  "commands.teamcmd.teamates.created_home": "%s à défini une nouvelle demeure pour votre équipe",
+  "commands.teamcmd.created_home": "Vous avez défini une nouvelle demeure pour votre équipe",
+  "commands.teamcmd.tp_to_home": "Téléportation à la demeure de votre équipe",
+  "commands.teamcmd.fail.tp_to_home": "Votre équipe n'a pas de demeure"
+}

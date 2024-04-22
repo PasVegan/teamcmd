@@ -1,4 +1,4 @@
-package io.github.beabfc.teamcmd;
+package io.github.PasVegan.teamcmd;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -14,12 +14,15 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.TeamArgumentType;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import net.minecraft.world.World;
 
 import java.util.Collection;
 
@@ -51,6 +54,8 @@ public class CommandBuilder {
         new SimpleCommandExceptionType(Text.translatable("commands.teamcmd.fail.not_invited"));
     private static final SimpleCommandExceptionType DUPLICATE_COLOR =
         new SimpleCommandExceptionType(Text.translatable("commands.teamcmd.fail.duplicate_color"));
+    private static final SimpleCommandExceptionType NO_HOME_SET =
+        new SimpleCommandExceptionType(Text.translatable("commands.teamcmd.fail.tp_to_home"));
     private static final DynamicCommandExceptionType TEAM_NOT_FOUND =
         new DynamicCommandExceptionType(option -> Text.translatable("team.notFound", option));
 
@@ -66,14 +71,16 @@ public class CommandBuilder {
                     TeamArgumentType.getTeam(ctx, "team")))))
             .then(literal("leave").executes(ctx -> executeLeave(ctx.getSource())))
             .then(literal("invite").then(argument("player", EntityArgumentType.player()).executes(ctx -> executeInvitePlayer(ctx.getSource(), EntityArgumentType.getPlayer(ctx, "player")))))
-            .then(literal("accept").executes(ctx -> executeAcceptInvite(ctx.getSource())));
+            .then(literal("accept").executes(ctx -> executeAcceptInvite(ctx.getSource())))
+            .then(literal("home").executes(ctx -> executeGoHome(ctx.getSource())));
 
         LiteralArgumentBuilder<ServerCommandSource> setCommand = literal("set")
             .then(literal("color").then(argument("color", ColorArgumentType.color()).executes(ctx -> executeSetColor(ctx.getSource(), ColorArgumentType.getColor(ctx, "color")))))
             .then(literal("friendlyFire").then(argument("allowed", BoolArgumentType.bool()).executes(ctx -> executeSetFriendlyFire(ctx.getSource(), BoolArgumentType.getBool(ctx, "allowed")))))
 
             .then(literal("seeInvisibles").then(argument("allowed", BoolArgumentType.bool()).executes(ctx -> executeSetShowFriendlyInvisibles(ctx.getSource(), BoolArgumentType.getBool(ctx, "allowed")))))
-            .then(literal("displayName").then(argument("displayName", StringArgumentType.word()).executes(ctx -> executeSetDisplayName(ctx.getSource(), StringArgumentType.getString(ctx, "displayName")))));
+            .then(literal("displayName").then(argument("displayName", StringArgumentType.word()).executes(ctx -> executeSetDisplayName(ctx.getSource(), StringArgumentType.getString(ctx, "displayName")))))
+            .then(literal("home").executes(ctx -> executeSetHome(ctx.getSource())));
 
         teamCmd.then(setCommand);
         dispatcher.register(teamCmd);
@@ -240,7 +247,11 @@ public class CommandBuilder {
         TeamUtil.sendToTeammates(player, Text.translatable("commands.teamcmd.teammates.left",
             player.getDisplayName()));
         player.getScoreboard().clearPlayerTeam(player.getEntityName());
-        if (team.getPlayerList().size() == 0) player.getScoreboard().removeTeam(team);
+        if (team.getPlayerList().isEmpty()) {
+            TeamCommand.HOMES.deleteTeamHome(team.getName());
+            TeamCommand.HOMES.save("teamhomes.dat");
+            player.getScoreboard().removeTeam(team);
+        }
         source.sendFeedback(() -> Text.translatable("commands.teamcmd.left", team.getFormattedName()), false);
         return 1;
     }
@@ -266,6 +277,54 @@ public class CommandBuilder {
                 Texts.join(collection, Team::getFormattedName)), false);
         }
         return collection.size();
+    }
+
+    private static int executeSetHome(ServerCommandSource source) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        Team team = (Team) player.getScoreboardTeam();
+        int dimension;
+        if (team == null) {
+            throw NOT_IN_TEAM.create();
+        }
+
+        TeamUtil.sendToTeammates(player, Text.translatable("commands.teamcmd.teamates.created_home",
+            player.getDisplayName()));
+        RegistryKey<World> dimensionType = player.getWorld().getRegistryKey();
+        if (dimensionType.equals(World.OVERWORLD)) {
+            dimension = 0;
+        } else if (dimensionType.equals(World.NETHER)) {
+            dimension = 1;
+        } else if (dimensionType.equals(World.END)) {
+            dimension = 2;
+        } else {
+            dimension = 0;
+        }
+        TeamCommand.HOMES.setHome(team.getName(), player.getPos(), player.getRotationClient(), dimension);
+        TeamCommand.HOMES.save("teamhomes.dat");
+        source.sendFeedback(() -> Text.translatable("commands.teamcmd.created_home"), false);
+        return 1;
+    }
+
+    private static int executeGoHome(ServerCommandSource source) throws CommandSyntaxException {
+        ServerPlayerEntity player = source.getPlayerOrThrow();
+        Team team = (Team) player.getScoreboardTeam();
+        ServerWorld world;
+
+        if (team == null) {
+            throw NOT_IN_TEAM.create();
+        }
+        TeamHomes.TeamHome home = TeamCommand.HOMES.getHome(team.getName());
+        if (home == null) {
+            throw NO_HOME_SET.create();
+        }
+        switch (home.dimension) {
+            case 1 -> world = source.getServer().getWorld(World.NETHER);
+            case 2 -> world = source.getServer().getWorld(World.END);
+            default -> world = source.getServer().getWorld(World.OVERWORLD);
+        }
+        player.teleport(world, home.posX, home.posY, home.posZ, home.yaw, home.pitch);
+        source.sendFeedback(() -> Text.translatable("commands.teamcmd.tp_to_home"), false);
+        return 1;
     }
 
     private static boolean duplicateName(Collection<Team> teams, String name) {

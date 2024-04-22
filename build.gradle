@@ -1,6 +1,7 @@
 plugins {
     id 'fabric-loom' version '1.5.1'
     id 'maven-publish'
+    id "org.sonarqube" version "5.0.0.4638"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -80,5 +81,12 @@ publishing {
         // Notice: This block does NOT have the same function as the block in the top level.
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
+    }
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "PasVegan_teamcmd_74e72b11-6df8-4ab9-aaf3-6260773756be"
+        property "sonar.projectName", "teamcmd"
     }
 }

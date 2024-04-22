@@ -11,5 +11,9 @@
   "commands.teamcmd.left": "Du hast das Team %s verlassen",
   "commands.teamcmd.teammates.left": "%s hat dein team verlassen",
   "commands.teamcmd.invite_expired": "Deine Einladung dem Team %s beizutreten ist ausgelaufen",
-  "commands.teamcmd.fail.duplicate_color": "Ein Team mit dieser Farbe existiert bereits"
+  "commands.teamcmd.fail.duplicate_color": "Ein Team mit dieser Farbe existiert bereits",
+  "commands.teamcmd.teamates.created_home": "%s set a new home for your team",
+  "commands.teamcmd.created_home": "You set a new home for your team",
+  "commands.teamcmd.tp_to_home": "Teleport to team home",
+  "commands.teamcmd.fail.tp_to_home": "Your team has no home"
 }

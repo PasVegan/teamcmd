@@ -1,4 +1,4 @@
-package io.github.beabfc.teamcmd;
+package io.github.PasVegan.teamcmd;
 
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
@@ -22,7 +22,6 @@ public abstract class TeamUtil {
                 otherPlayer.sendMessage(message);
             }
         }
-
     }
 
     public static void addInvite(ServerPlayerEntity player, String teamName) {

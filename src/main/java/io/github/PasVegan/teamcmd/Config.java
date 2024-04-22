@@ -1,4 +1,4 @@
-package io.github.beabfc.teamcmd;
+package io.github.PasVegan.teamcmd;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
